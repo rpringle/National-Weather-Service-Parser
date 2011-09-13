@@ -1,1 +1,4 @@
 This code will read in a local XML feed from the National Weather Service, write it locally, and then display the data on a web page. User configurable elements include the URL for the nearest local feed, local path to write the data to, and length of interval to refresh data from remote source.
+
+This code is licensed under the two clause BSD license. See http://opensource.org/licenses/BSD-2-clause.
+
