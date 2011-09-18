@@ -1,3 +1,7 @@
+<?php
+
+// COPYRIGHT AND LICENSING NOTICE
+
 /*
 
 Copyright 2011 City of Aurora, Illinois. All rights reserved.
@@ -29,10 +33,37 @@ or implied, of City of Aurora, Illinois.
 
 */
 
-<?php
+// FUTURE TO-DO LIST
 
-// Get Weather Routine //
+/*
 
+1. Rewrite entire code as a function
+2. Add user-configurable time increments for checking feed on NWS site (currently hard-coded
+   for one hour increments, as recommended by NWS)
+3. Separate display output from code so that it fits a more MVC-style approach and allows
+   users to more easily configure and integrate the front-end display of data.
+
+*/
+
+
+// GET WEATHER ROUTINE
+
+// User defined variables
+
+/*
+
+There are two user configurable variables:
+1. Local file name - This is the file name and path that you want the weather
+   parser to copy the NWS' data to. NWS Parser writes to a local file and then
+   makes calls to that file in order to reduce the load on the NWS servers.
+   
+2. Weather URL - This is the URL to your nearest local NWS reading station.
+   You need to replace the last portion of the URL string with the name of the feed
+   that is closest to your own location. Currently, this defaults to "KARR.xml." Visit
+   http://www.weather.gov/xml/current_obs/ to get a list of the nearest reporting
+   station in your area.
+
+*/
 $filename = $_SERVER['DOCUMENT_ROOT'] . '/feeds/KARR.xml';
 
 $weatherurl = 'http://www.nws.noaa.gov/data/current_obs/KARR.xml';
