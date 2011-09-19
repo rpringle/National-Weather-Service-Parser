@@ -1,4 +1,6 @@
-This code will read in a local XML feed from the National Weather Service, write it locally, and then display the data on a web page. User configurable elements include the URL for the nearest local feed, local path to write the data to, and length of interval to refresh data from remote source.
+The National Weather Service Parser (NWS Parser) was created for local and state governments or anyone else who wishes to display the local weather on a website without any branding or forced display styles that are typical of third party weather widgets. This code will parse an XML feed of your choosing from the National Weather Service, write it locally, and then display the resulting data on a web page. The user only needs to supply the name of the XML feed that represents the nearest NWS weather station, and the name for the local copy.
+
+This code requires PHP 5.0.9 or later and/or support for PHP's SimpleXML. It is implemented as a function that returns an XML array of variables. The user can choose which elements to display and how to display them. Sample display files are also included for your use.
 
 This code is licensed under the two clause BSD license. See http://opensource.org/licenses/BSD-2-clause.
 
