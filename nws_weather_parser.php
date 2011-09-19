@@ -53,20 +53,24 @@ or implied, of City of Aurora, Illinois.
 /*
 
 There are two user configurable variables:
-1. Local file name - This is the file name and path that you want the weather
+1. $localfeed - This is the file name and path that you want the weather
    parser to copy the NWS' data to. NWS Parser writes to a local file and then
    makes calls to that file in order to reduce the load on the NWS servers.
    
-2. Weather URL - This is the URL to your nearest local NWS reading station.
-   You need to replace the last portion of the URL string with the name of the feed
-   that is closest to your own location. Currently, this defaults to "KARR.xml." Visit
-   http://www.weather.gov/xml/current_obs/ to get a list of the nearest reporting
-   station in your area.
+2. $remotefeed - This is the XML file name of your nearest local NWS reading station.
+   Currently, this defaults to "KARR.xml." Visit http://www.weather.gov/xml/current_obs/
+   to get a list of the nearest reporting stations in your area.
 
 */
-$filename = $_SERVER['DOCUMENT_ROOT'] . '/feeds/KARR.xml';
 
-$weatherurl = 'http://www.nws.noaa.gov/data/current_obs/KARR.xml';
+$localfeed = 'KARR.xml'; // Replace with whatever file name you want
+
+$remotefeed = 'KARR.xml'; // Replace with name of your chosen local feed's XML file
+
+
+$filename = $_SERVER['DOCUMENT_ROOT'] . '/feeds/' . $localfeed;
+
+$weatherurl = 'http://www.nws.noaa.gov/data/current_obs/' . $remotefeed;
 
 $weatherdata = file_get_contents($weatherurl);
 
