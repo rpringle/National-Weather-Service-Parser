@@ -28,7 +28,7 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 The views and conclusions contained in the software and documentation are those of the
 authors and should not be interpreted as representing official policies, either expressed
-or implied, of City of Aurora, Illinois.
+or implied, of the City of Aurora, Illinois.
 
 
 */
@@ -37,10 +37,9 @@ or implied, of City of Aurora, Illinois.
 
 /*
 
-1. Rewrite entire code as a function
-2. Add user-configurable time increments for checking feed on NWS site (currently hard-coded
+1. Add user-configurable time increments for checking feed on NWS site (currently hard-coded
    for one hour increments, as recommended by NWS)
-3. Separate display output from code so that it fits a more MVC-style approach and allows
+2. Separate display output from code so that it fits a more MVC-style approach and allows
    users to more easily configure and integrate the front-end display of data.
 
 */
@@ -53,9 +52,9 @@ or implied, of City of Aurora, Illinois.
 /*
 
 There are two user configurable variables:
-1. $localfeed - This is the file name and path that you want the weather
-   parser to copy the NWS' data to. NWS Parser writes to a local file and then
-   makes calls to that file in order to reduce the load on the NWS servers.
+1. $localfeed - This is the file name that you want the weather parser to copy the NWS' data to.
+   NWS Parser writes to a local file and then makes calls to that file in order to reduce the load
+   on the NWS servers.
    
 2. $remotefeed - This is the XML file name of your nearest local NWS reading station.
    Currently, this defaults to "KARR.xml." Visit http://www.weather.gov/xml/current_obs/
@@ -63,90 +62,60 @@ There are two user configurable variables:
 
 */
 
-$localfeed = 'KARR.xml'; // Replace with whatever file name you want
+$localfeed	 = 'KARR.xml'; // Replace with whatever file name you want
+$remotefeed	 = 'KARR.xml'; // Replace with name of your chosen local feed's XML file
 
-$remotefeed = 'KARR.xml'; // Replace with name of your chosen local feed's XML file
+function parseWeather($localfeed, $remotefeed)
+	{
 
+	$filename = $_SERVER['DOCUMENT_ROOT'] . '/feeds/' . $localfeed;
+	$weatherurl = 'http://www.nws.noaa.gov/data/current_obs/' . $remotefeed;
+	$weatherdata = file_get_contents($weatherurl);
 
-$filename = $_SERVER['DOCUMENT_ROOT'] . '/feeds/' . $localfeed;
-
-$weatherurl = 'http://www.nws.noaa.gov/data/current_obs/' . $remotefeed;
-
-$weatherdata = file_get_contents($weatherurl);
-
-// check to see if the local file exists
-
-if (file_exists($filename)) {
-
-                // get difference in seconds between now and last modified date
-
-                $diff = (time() - filemtime("$filename"))/60*60;
-
-                // if greater than 1 hr (3600 seconds) get new file from source
-
-                if ($diff >= 3600) {
-
-                                // check to make sure file has write permissions
-
-                                if(is_writable($filename)) {
-
-                                                file_put_contents($filename,$weatherdata, LOCK_EX);
-
-                                                }
-
-                                };
-
-                } else {
-
-                                // file doesn't exist, get data and create new file
-
-                                file_put_contents($filename,$weatherdata);
-
-                                }
-
-                //check again to be sure file exists
-
-                if (file_exists($filename)) {
-
-                                // write it out
-
-                                $xml = simplexml_load_file($filename);
-
-                                echo '<h3 class="centertxt">Current Weather</h3>';
-
-                                echo '<img class="floatleftnoclearsmallborder" src="/images/weather/' . $xml->icon_url_name . '" alt="">';
-
-                                echo '<h2>' . $xml->temp_f . '&#176; F</h2>';
-
-                                echo '<p>' . $xml->weather . '</p>';
-
-                                echo '<br class="clear" >';
-
-                                echo '<ul class="nobulletlist">';
-
-                                echo '<li><strong>Wind Chill (&#176;F): </strong>' . $xml->windchill_f . '</li>';
-
-                                echo '<li><strong>Heat Index (&#176;F): </strong>' . $xml->heat_index_f . '</li>';
-
-                                echo '<li><strong>Humidity: </strong>' . $xml->relative_humidity . '%</li>';
-
-                                echo '<li><strong>Wind: </strong>' . $xml->wind_string . '</li>';
-
-                                echo '<li><strong>Pressure: </strong>' . $xml->pressure_in . '</li>';
-
-                                echo '<li><strong>Dewpoint: </strong>' . $xml->dewpoint_f . '</li>';
-
-                                echo '</ul>';
-
-                                echo '<p class="centertxt"><em>' . $xml->observation_time . '</em></p>';
-
-                                echo '<p class="centertxt"><a href="http://www.crh.noaa.gov/forecast/MapClick.php?CityName=Aurora&amp;state=IL&amp;site=LOT">view forecast</a></p>';
-
-                                }
-
-                // if no file and it could not be created
-
-                // then no weather data is shown. Do nothing.
+	// Check to see if the local file exists
+	if (file_exists($filename))
+		{
+    	// Get difference in seconds between now and last modified date
+        $diff = (time() - filemtime("$filename"))/60*60;
+        // If greater than 1 hr (3600 seconds) get new file from source
+        if ($diff >= 3600)
+			{
+        	// Check to make sure file has write permissions
+            if(is_writable($filename))
+				{
+                file_put_contents($filename,$weatherdata, LOCK_EX);
+                }
+            };
+		}
+		else
+		{
+		// File doesn't exist, get data and create new file
+		file_put_contents($filename,$weatherdata);
+	    }
+	// Check again to be sure file exists
+	if (file_exists($filename))
+		{
+        // Write it out
+        $xml = simplexml_load_file($filename);
+        echo '<h3 class="centertxt">Current Weather</h3>';
+		echo '<img class="floatleftnoclearsmallborder" src="/images/weather/' . $xml->icon_url_name . '" alt="">';
+		echo '<h2>' . $xml->temp_f . '&#176; F</h2>';
+		echo '<p>' . $xml->weather . '</p>';
+		echo '<br class="clear" >';
+		echo '<ul class="nobulletlist">';
+		echo '<li><strong>Wind Chill (&#176;F): </strong>' . $xml->windchill_f . '</li>';
+		echo '<li><strong>Heat Index (&#176;F): </strong>' . $xml->heat_index_f . '</li>';
+		echo '<li><strong>Humidity: </strong>' . $xml->relative_humidity . '%</li>';
+		echo '<li><strong>Wind: </strong>' . $xml->wind_string . '</li>';
+		echo '<li><strong>Pressure: </strong>' . $xml->pressure_in . '</li>';
+		echo '<li><strong>Dewpoint: </strong>' . $xml->dewpoint_f . '</li>';
+		echo '</ul>';
+		echo '<p class="centertxt"><em>' . $xml->observation_time . '</em></p>';
+		echo '<p class="centertxt"><a href="http://www.crh.noaa.gov/forecast/MapClick.php?CityName=Aurora&amp;state=IL&amp;site=LOT">view forecast</a></p>';
+        }
+	// If no file and it could not be created
+	// then no weather data is shown. Do nothing.
+	};
 
 ?> 
 
