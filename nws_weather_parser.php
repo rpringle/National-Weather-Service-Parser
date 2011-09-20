@@ -1,8 +1,8 @@
 <?php
 
-// COPYRIGHT AND LICENSING NOTICE
-
 /*
+
+COPYRIGHT AND LICENSING NOTICE
 
 Copyright 2011 City of Aurora, Illinois. All rights reserved.
 
@@ -31,44 +31,53 @@ authors and should not be interpreted as representing official policies, either 
 or implied, of the City of Aurora, Illinois.
 
 
-*/
-
-// FUTURE TO-DO LIST
-
-/*
-
-1. Add user-configurable time increments for checking feed on NWS site (currently hard-coded
-   for one hour increments, as recommended by NWS)
-2. Separate display output from code so that it fits a more MVC-style approach and allows
-   users to more easily configure and integrate the front-end display of data.
-
-*/
+SETUP
 
 
-// GET WEATHER ROUTINE
+WEATHER ICONS
 
-// User defined variables
+In order to reduce the load on the National Weather Service (NWS) servers, it is recommended
+that you download the NWS weather icons pack and install them locally on your own server.
 
-/*
+The icons can be downloaded directly from:
 
-There are two user configurable variables:
-1. $localfeed - This is the file name that you want the weather parser to copy the NWS' data to.
+http://www.weather.gov/images/weather/fcicons/Weather%20Icons.zip
+
+The default installation location is "/images/weather/." If you choose a different location,
+please be sure to update the $iconspath variable with the correct location.
+
+A complete overview of the icons can be found here:
+
+http://www.weather.gov/xml/current_obs/weather.php
+
+You can also design your own weather icons. As long as they retain the same file names, they
+will work just fine with the NWS Parser function.
+
+
+USER DEFINED VARIABLES
+
+There are three user configurable variables:
+1. $localfeed - This is the file name/path that you want the weather parser to copy the NWS' data to.
    NWS Parser writes to a local file and then makes calls to that file in order to reduce the load
-   on the NWS servers.
+   on the NWS servers. This is set by default to /feeds/KARR.xml.
    
 2. $remotefeed - This is the XML file name of your nearest local NWS reading station.
    Currently, this defaults to "KARR.xml." Visit http://www.weather.gov/xml/current_obs/
    to get a list of the nearest reporting stations in your area.
+   
+3. $iconspath - This is the path to the locaton of the weather icons on your local server.
+   Currently, this defaults to "/images/weather/."
 
 */
 
-$localfeed	 = 'KARR.xml'; // Replace with whatever file name you want
-$remotefeed	 = 'KARR.xml'; // Replace with name of your chosen local feed's XML file
+$localfeed	 = '/feeds/KARR.xml';	// Replace with whatever file name you want
+$remotefeed	 = 'KARR.xml';			// Replace with name of your chosen local feed's XML file
+$iconspath	 = '/images/weather/';	// Replace with path to local image directory
 
 function parseWeather($localfeed,$remotefeed)
 	{
 
-	$filename = $_SERVER['DOCUMENT_ROOT'] . '/clients/nwsparser/feeds/' . $localfeed;
+	$filename = $_SERVER['DOCUMENT_ROOT'] . '/clients/nwsparser' . $localfeed;
 	$weatherurl = 'http://www.nws.noaa.gov/data/current_obs/' . $remotefeed;
 	$weatherdata = file_get_contents($weatherurl);
 		
