@@ -81,8 +81,3 @@ return $xml;
 	// then no weather data is shown. Do nothing.
 	
 	}
-
-?> 
-
-
-
