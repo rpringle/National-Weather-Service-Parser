@@ -17,7 +17,8 @@ include 'nws_weather_parser.php';
 <?php
 
 // Run the function
-	$xml = parseWeather($localfeed, $remotefeed);
+$xml = parseWeather($localfeed, $remotefeed);
+if ($xml) {
 	echo '<h3>Current Weather</h3>';
 	echo '<img src="$iconspath' . $xml->icon_url_name . '" alt="">';
 	echo '<h2>' . $xml->temp_f . '&#176; F</h2>';
@@ -33,8 +34,9 @@ include 'nws_weather_parser.php';
 	echo '</ul>';
 	echo '<p><em>' . $xml->observation_time . '</em></p>';
 	echo '<p><a href="http://www.crh.noaa.gov/forecast/MapClick.php?CityName=Aurora&amp;state=IL&amp;site=LOT">view forecast</a></p>';
-
-
+} else {
+	echo "Could not load weather data.";
+}
 ?>
 </body>
 </html>
