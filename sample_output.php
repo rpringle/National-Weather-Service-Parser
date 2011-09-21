@@ -17,7 +17,6 @@ include 'nws_weather_parser.php';
 <?php
 
 // Run the function
-parseWeather($localfeed, $remotefeed);
 $xml = parseWeather($localfeed, $remotefeed);
 if ($xml) {
 	echo '<h3>Current Weather</h3>';
