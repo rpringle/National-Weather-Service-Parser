@@ -33,8 +33,6 @@ parseWeather($localfeed, $remotefeed);
 	echo '</ul>';
 	echo '<p><em>' . $xml->observation_time . '</em></p>';
 	echo '<p><a href="http://www.crh.noaa.gov/forecast/MapClick.php?CityName=Aurora&amp;state=IL&amp;site=LOT">view forecast</a></p>';
-
-
 ?>
 </body>
 </html>
