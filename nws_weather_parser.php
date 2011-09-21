@@ -83,12 +83,7 @@ function parseWeather($localfeed, $remotefeed)
 	// return false or xml data
 	return $xml;
 }
-<<<<<<< HEAD
 	// If no file and it could not be created
 	// then no weather data is shown. Do nothing.
 
 /* end of file nws_weather_parser.php */
-=======
-
-/* end of file nws_weather_parser.php */
->>>>>>> 367e25465b7d4cf3613217642fced84274b3f0c4
