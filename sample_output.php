@@ -1,6 +1,6 @@
 <?php
 // Error reporting; turn off for production
-error_reporting(E_ALL);
+//error_reporting(E_ALL);
 
 // Include the NWS Parser function
 include 'nws_weather_parser.php';
