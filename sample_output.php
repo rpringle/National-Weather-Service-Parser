@@ -18,22 +18,21 @@ include 'nws_weather_parser.php';
 
 // Run the function
 parseWeather($localfeed, $remotefeed);
-
-echo '<h3>Current Weather</h3>';
-		echo '<img src="$iconspath' . $xml->icon_url_name . '" alt="">';
-		echo '<h2>' . $xml->temp_f . '&#176; F</h2>';
-		echo '<p>' . $xml->weather . '</p>';
-		echo '<br/>';
-		echo '<ul>';
-		echo '<li><strong>Wind Chill (&#176;F): </strong>' . $xml->windchill_f . '</li>';
-		echo '<li><strong>Heat Index (&#176;F): </strong>' . $xml->heat_index_f . '</li>';
-		echo '<li><strong>Humidity: </strong>' . $xml->relative_humidity . '%</li>';
-		echo '<li><strong>Wind: </strong>' . $xml->wind_string . '</li>';
-		echo '<li><strong>Pressure: </strong>' . $xml->pressure_in . '</li>';
-		echo '<li><strong>Dewpoint: </strong>' . $xml->dewpoint_f . '</li>';
-		echo '</ul>';
-		echo '<p><em>' . $xml->observation_time . '</em></p>';
-		echo '<p><a href="http://www.crh.noaa.gov/forecast/MapClick.php?CityName=Aurora&amp;state=IL&amp;site=LOT">view forecast</a></p>';
+	echo '<h3>Current Weather</h3>';
+	echo '<img src="$iconspath' . $xml->icon_url_name . '" alt="">';
+	echo '<h2>' . $xml->temp_f . '&#176; F</h2>';
+	echo '<p>' . $xml->weather . '</p>';
+	echo '<br/>';
+	echo '<ul>';
+	echo '<li><strong>Wind Chill (&#176;F): </strong>' . $xml->windchill_f . '</li>';
+	echo '<li><strong>Heat Index (&#176;F): </strong>' . $xml->heat_index_f . '</li>';
+	echo '<li><strong>Humidity: </strong>' . $xml->relative_humidity . '%</li>';
+	echo '<li><strong>Wind: </strong>' . $xml->wind_string . '</li>';
+	echo '<li><strong>Pressure: </strong>' . $xml->pressure_in . '</li>';
+	echo '<li><strong>Dewpoint: </strong>' . $xml->dewpoint_f . '</li>';
+	echo '</ul>';
+	echo '<p><em>' . $xml->observation_time . '</em></p>';
+	echo '<p><a href="http://www.crh.noaa.gov/forecast/MapClick.php?CityName=Aurora&amp;state=IL&amp;site=LOT">view forecast</a></p>';
 
 
 ?>
