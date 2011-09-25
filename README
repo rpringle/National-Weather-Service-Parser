@@ -58,8 +58,8 @@ Just replace 'nws_weather_parser.php' with the path to wherever the file resides
 
 You must actually reference the function on the page you wish to display the weather:
 
-	// Run the function
-	parseWeather($localfeed, $remotefeed);
+	// Call the function
+	$xml = parseWeather($localfeed, $remotefeed);
 
 
 
