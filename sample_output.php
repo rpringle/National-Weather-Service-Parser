@@ -20,7 +20,7 @@ include 'nws_weather_parser.php';
 $xml = parseWeather($localfeed, $remotefeed);
 if ($xml) {
 	echo '<h3>Current Weather</h3>';
-	echo '<img src="$iconspath' . $xml->icon_url_name . '" alt="">';
+	echo '<img src=' . $iconspath . $xml->icon_url_name . ' alt=" ">';
 	echo '<h2>' . $xml->temp_f . '&#176; F</h2>';
 	echo '<p>' . $xml->weather . '</p>';
 	echo '<br/>';
