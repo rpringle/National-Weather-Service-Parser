@@ -13,7 +13,7 @@ In order to reduce the load on the National Weather Service (NWS) servers, it is
 
 The icons can be downloaded directly from:
 
-http://www.weather.gov/images/weather/fcicons/Weather%20Icons.zip
+http://w1.weather.gov/images/fcicons/Weather%20Icons.zip
 
 The default installation location is "/images/weather/." If you choose a different location, please be sure to update the $iconspath variable with the correct location.
 
