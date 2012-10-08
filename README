@@ -33,7 +33,7 @@ By default, NWS Parser is set to write a copy of the NWS XML feed you choose to 
 
 3. Define variables
 
-There are three user configurable variables:
+There are three required user configurable variables:
 
 A. $localfeed - This is the file name/path that you want the weather parser to copy the NWS' data to. NWS Parser writes to a local file and then makes calls to that file in order to reduce the load on the NWS servers. This is set by default to /feeds/KARR.xml.
    
@@ -43,7 +43,17 @@ C. $iconspath - This is the path to the locaton of the weather icons on your loc
 
 
 
-4. Include Function
+4. Optional Variables
+
+There are two optional variables:
+
+D. $forecast - Optional link for full forecast on NWS site. You can get the link to the full forecast for your area by visiting: http://www.weather.gov/ and using the form to enter the correct location. The resulting page is the URL you'll want to use.
+
+E. $feed - Optional link for mobile forecast on NWS site. The mobile weather link for your area can be found on the full forecast page (see D. above). Check the right side of the page for a link titled 'Mobile Weather'.
+
+
+
+5. Include Function
 
 Include the nws_weather_parser.php code in the page where you want to display your weather data. See the included sample file for how to handle the includes. Generally, the include should look like:
 
@@ -54,7 +64,7 @@ Just replace 'nws_weather_parser.php' with the path to wherever the file resides
 
 
 
-5. Reference The Function
+6. Reference The Function
 
 You must actually reference the function on the page you wish to display the weather:
 
@@ -63,10 +73,32 @@ You must actually reference the function on the page you wish to display the wea
 
 
 
-6. Display Weather Data
+7. Display Weather Data
 
 Display the weather data on your page. The NWS provides a PDF Product Description document that describes the XML feed and shows all the data that can be referenced. You can choose whatever pieces of data you want to display on your page. The included sample_output.php file shows you how to reference each item. All of the nodes in the XML file are stored in an array named $xml and can be easily referenced like '$xml->weather'.
 
 Product Description Document
 http://products.weather.gov/PDD/NWS_Current_Observations_RSS_XML.pdf
+
+
+
+8. Sample CSS
+
+A sample CSS file has been included as an example of what can be done to visually display the weather data. Feel free to use this file as the basis for your own CSS or discard it.
+
+
+
+9. Error Checking
+
+The weather parser does some basic error checking.
+
+A. It first checks to see if the directory containing the XML file is writable or not. If the directory is writable,
+
+B. It then checks for the existence of the XML file itself. If the file exists,
+
+C. the function then checks to see if the file is more than an hour old. If it is, or the file doesn't exist,
+
+D. the function attempts to grab a new copy of the file and write it to the directory.
+
+If the directory or the file are not writable, the function will return an error instead of the XML data. The sample_output.php file is set to display a generic error message if an error is detected. IF you are in a test environment, or you run into problems getting the weather parser to work in a live environment, you can choose to display the actual output from the errors. Please use caution when doing this, as it will expose portions of your directory structure which could be used by malicious users to exploit your server.
 
