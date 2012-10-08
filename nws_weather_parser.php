@@ -34,9 +34,11 @@ IMPORTANT! SEE THE README DOC FOR SETUP INSTRUCTIONS
 
 */
 
-$localfeed	 = '/clients/nwsparser/feeds/KARR.xml';	// Replace with whatever file name you want
-$remotefeed	 = 'KARR.xml';			// Replace with name of your chosen local feed's XML file
-$iconspath	 = '/images/weather/';	// Replace with path to local image directory
+$localfeed	= 'feeds/KBDU.xml';		// Replace with whatever file name you want
+$remotefeed	= 'KBDU.xml';			// Replace with name of your chosen local feed's XML file
+$iconspath	= 'images/weather/';	// Replace with path to local image directory
+$forecast	= 'http://forecast.weather.gov/MapClick.php?CityName=Boulder&state=CO&site=BOU'; // Optional link for full forecast on NWS site.
+$mobile		= 'http://mobile.weather.gov/index.php?lat=40.04&lon=-105.23'; // Optional link to mobile version of full forecast on NWS
 
 /**
  * parseWeather function
@@ -48,38 +50,59 @@ $iconspath	 = '/images/weather/';	// Replace with path to local image directory
 function parseWeather($localfeed, $remotefeed)
 {
 
-	$filename = $_SERVER['DOCUMENT_ROOT'] . $localfeed;
+	$filename = $localfeed;
 	$weatherurl = 'http://www.nws.noaa.gov/data/current_obs/' . $remotefeed;
 	$weatherdata = file_get_contents($weatherurl);
 
 	$xml = false;
-		
-	// Check to see if the local file exists
-	if (file_exists($filename))
-	{
-		// Get difference in seconds between now and last modified date
-		$diff = (time() - filemtime($filename)) / 60 * 60;
-		// If greater than 1 hr (3600 seconds) get new file from source
-		if ($diff >= 3600)
+	
+	// Check permissions on directory
+	if (is_writable(dirname($filename)))
+	{			
+		// Check to see if the local file exists
+		if (file_exists($filename))
 		{
-			// Check to make sure file has write permissions
-			if (is_writable($filename))
+			// Get difference in seconds between now and last modified date
+			$diff = (time() - filemtime($filename)) / 60 * 60;
+			// If greater than 1 hr (3600 seconds) get new file from source
+			if ($diff >= 3600)
 			{
-				file_put_contents($filename,$weatherdata, LOCK_EX);
+				// Check to make sure file has write permissions
+				if (is_writable($filename))
+				{
+					file_put_contents($filename,$weatherdata, LOCK_EX);
+				}
+				else
+				{
+					// Log error if file isn't writable
+					$error = "Sorry, can't write to file. Please check file permissions.";
+				}
 			}
 		}
-		$xml = simplexml_load_file($filename);
+		else
+		{
+			// File doesn't exist, get data and create new file
+			file_put_contents($filename, $weatherdata);
+		}
 	}
 	else
 	{
-		// File doesn't exist, get data and create new file
-		file_put_contents($filename, $weatherdata);
-		$xml = simplexml_load_file($filename);
+		// Log error if directory isn't writable
+		$error = "Sorry, can't write to directory. Please check directory permissions.";
 	}
-	// return false or xml data
-	return $xml;
+	
+	// If there were no errors, load data
+	if (!isset($error))
+	{
+		// Load the XML weather data into a variable and return the data
+		$xml = simplexml_load_file($filename);
+		return $xml;
+	}
+	else
+	{
+		// Return errors
+		return $error;
+	}
 }
-	// If no file and it could not be created
-	// then no weather data is shown. Do nothing.
 
 /* end of file nws_weather_parser.php */
