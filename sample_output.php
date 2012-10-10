@@ -20,7 +20,7 @@
 <?php
 
 	// Run the function
-	$xml = parseWeather($localfeed, $remotefeed);
+	$xml = parseWeather($local_feed, $remote_feed);
 	
 	// Check for errors first
 	if (isset($error))
@@ -39,7 +39,7 @@
 		echo '<div id="nws-container">' . "\n";
 		echo '<h1>Current Weather</h1>' . "\n";
 		echo '<span class="primary">' . "\n";
-		echo '<img src="' . $iconspath . $xml->icon_url_name . '" alt=" ">'  . "\n";
+		echo '<img src="' . $icons_path . $xml->icon_url_name . '" alt=" ">'  . "\n";
 		// Casting temp_f as a float removes trailing zeros
 		echo '<h2>' . (float)$xml->temp_f . '&#176; F</h2>' . "\n";
 		echo '<p class="nws-description">' . $xml->weather . '</p>' . "\n";
@@ -69,9 +69,9 @@
 			echo '<p class="nws-centered"><a href="' . $forecast . '">view forecast</a></p>' . "\n";
 		}
 		// If there's a link to a mobile forecast, display it
-		if (isset($mobile))
+		if (isset($mobile_forecast))
 		{
-			echo '<p class="nws-centered"><a href="' . $mobile . '">view mobile forecast</a></p>' . "\n";
+			echo '<p class="nws-centered"><a href="' . $mobile_forecast . '">view mobile forecast</a></p>' . "\n";
 		}
 	};
 

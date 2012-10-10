@@ -34,11 +34,11 @@ IMPORTANT! SEE THE README DOC FOR SETUP INSTRUCTIONS
 
 */
 
-$localfeed	= 'feeds/KBDU.xml';		// Replace with whatever file name you want
-$remotefeed	= 'KBDU.xml';			// Replace with name of your chosen local feed's XML file
-$iconspath	= 'images/weather/';	// Replace with path to local image directory
-$forecast	= 'http://forecast.weather.gov/MapClick.php?CityName=Boulder&state=CO&site=BOU'; // Optional link for full forecast on NWS site.
-$mobile		= 'http://mobile.weather.gov/index.php?lat=40.04&lon=-105.23'; // Optional link to mobile version of full forecast on NWS
+$local_feed			= 'feeds/KBDU.xml';		// Replace with whatever file name you want
+$remote_feed		= 'KBDU.xml';			// Replace with name of your chosen local feed's XML file
+$icons_path			= 'images/weather/';	// Replace with path to local image directory
+$forecast			= 'http://forecast.weather.gov/MapClick.php?CityName=Boulder&state=CO&site=BOU'; // Optional link for full forecast on NWS site.
+$mobile_forecast	= 'http://mobile.weather.gov/index.php?lat=40.04&lon=-105.23'; // Optional link to mobile version of full forecast on NWS
 
 /**
  * parseWeather function
@@ -47,12 +47,13 @@ $mobile		= 'http://mobile.weather.gov/index.php?lat=40.04&lon=-105.23'; // Optio
  * @author		Ron Pringle
  * @link		https://github.com/rpringle/National-Weather-Service-Parser
  */
-function parseWeather($localfeed, $remotefeed)
+ 
+function parse_weather($local_feed, $remote_feed)
 {
 
-	$filename = $localfeed;
-	$weatherurl = 'http://www.nws.noaa.gov/data/current_obs/' . $remotefeed;
-	$weatherdata = file_get_contents($weatherurl);
+	$filename		= $local_feed;
+	$weather_url	= 'http://www.nws.noaa.gov/data/current_obs/' . $remote_feed;
+	$weather_data	= file_get_contents($weather_url);
 
 	$xml = false;
 	
@@ -70,7 +71,7 @@ function parseWeather($localfeed, $remotefeed)
 				// Check to make sure file has write permissions
 				if (is_writable($filename))
 				{
-					file_put_contents($filename,$weatherdata, LOCK_EX);
+					file_put_contents($filename,$weather_data, LOCK_EX);
 				}
 				else
 				{
@@ -82,7 +83,7 @@ function parseWeather($localfeed, $remotefeed)
 		else
 		{
 			// File doesn't exist, get data and create new file
-			file_put_contents($filename, $weatherdata);
+			file_put_contents($filename, $weather_data);
 		}
 	}
 	else
