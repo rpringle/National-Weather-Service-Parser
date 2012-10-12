@@ -37,8 +37,8 @@ IMPORTANT! SEE THE README DOC FOR SETUP INSTRUCTIONS
 $local_feed			= 'feeds/KBDU.xml';		// Replace with whatever file name you want
 $remote_feed		= 'KBDU.xml';			// Replace with name of your chosen local feed's XML file
 $icons_path			= 'images/weather/';	// Replace with path to local image directory
-$forecast			= 'http://forecast.weather.gov/MapClick.php?CityName=Boulder&state=CO&site=BOU'; // Optional link for full forecast on NWS site.
-$mobile_forecast	= 'http://mobile.weather.gov/index.php?lat=40.04&lon=-105.23'; // Optional link to mobile version of full forecast on NWS
+$forecast			= 'http://forecast.weather.gov/MapClick.php?CityName=Boulder&amp;state=CO&amp;site=BOU'; // Optional link for full forecast on NWS site.
+$mobile_forecast	= 'http://mobile.weather.gov/index.php?lat=40.04&amp;lon=-105.23'; // Optional link to mobile version of full forecast on NWS
 
 /**
  * parseWeather function

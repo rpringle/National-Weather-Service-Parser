@@ -20,7 +20,7 @@
 <?php
 
 	// Run the function
-	$xml = parseWeather($local_feed, $remote_feed);
+	$xml = parse_weather($local_feed, $remote_feed);
 	
 	// Check for errors first
 	if (isset($error))
