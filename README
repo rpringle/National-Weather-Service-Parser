@@ -1,11 +1,16 @@
-The National Weather Service Parser (NWS Parser) was created for local and state governments or anyone else who wishes to display the local weather on a website without any branding or forced display styles that are typical of third party weather widgets. This code will parse an XML feed of your choosing from the National Weather Service, write it locally, and then display the resulting data on a web page. The user only needs to supply the name of the XML feed that represents the nearest NWS weather station, and the name for the local copy.
+The National Weather Service Parser (NWS Parser) was created for local and state governments or anyone else who wishes to display the local weather on a website without any branding or forced display styles that are typical of third party weather widgets. This code will parse an XML feed of your choosing from the National Weather Service and display the resulting data on a web page. The user only needs to supply the name of the XML feed that represents the nearest NWS weather station, and a few other variables depending on which version is used.
 
-This code requires PHP 5.0.9 or later and/or support for PHP's SimpleXML. It is implemented as a function that returns an XML array of variables. The user can choose which elements to display and how to display them. Sample display files are also included for your use.
+This code requires PHP 5.0.9 or later and/or support for PHP's SimpleXML. It is implemented as a function that returns an array of variables. The user can choose which elements to display and how to display them. Sample display files are also included for your use.
+
+There are two versions included: one that writes the XML data to a file on the user's server; and a second version that stores the data in a MySQL database.
 
 This code is licensed under the two clause BSD license. See http://opensource.org/licenses/BSD-2-clause.
 
 
 SETUP INSTRUCTIONS
+
+These setup instructions apply to both versions. Where the steps differ, step A will refer to the flat file version and step B will refer to the database version.
+
 
 1. Download and install Weather icons
 
@@ -25,9 +30,13 @@ You can also design your own weather icons. As long as they retain the same file
 
 
 
-2. Setup local feeds directory
+2.A. Setup local feeds directory
 
 By default, NWS Parser is set to write a copy of the NWS XML feed you choose to a directory called "feeds." You need to create this directory at the root of your server (or define your own alternative directory) and make sure it has proper permissions. The directory should be chmodded to '755' to allow the XML file to be written.
+
+2.B. Setup database connection
+
+Supply your database connection options (hostname, username, password and database name) in the $db_info array. NWS Parser uses this information to connect to your database. You'll also want to set up a table in your database with the appropriate fields.
 
 
 
@@ -35,9 +44,9 @@ By default, NWS Parser is set to write a copy of the NWS XML feed you choose to 
 
 There are three required user configurable variables:
 
-A. $localfeed - This is the file name/path that you want the weather parser to copy the NWS' data to. NWS Parser writes to a local file and then makes calls to that file in order to reduce the load on the NWS servers. This is set by default to /feeds/KARR.xml.
+A. $remotefeed - This is the XML file name of your nearest local NWS reading station. Currently, this defaults to "KBDU.xml." Visit http://www.weather.gov/xml/current_obs/ to get a list of the nearest reporting stations in your area.
    
-B. $remotefeed - This is the XML file name of your nearest local NWS reading station. Currently, this defaults to "KARR.xml." Visit http://www.weather.gov/xml/current_obs/ to get a list of the nearest reporting stations in your area.
+B. $localfeed - If you're using the flat file version, this is the file name/path that you want the weather parser to copy the NWS' data to. NWS Parser writes to a local file and then makes calls to that file in order to reduce the load on the NWS servers. This is set by default to /feeds/KBDU.xml. If you're using the database version, there is no need for this variable.
    
 C. $iconspath - This is the path to the locaton of the weather icons on your local server. Currently, this defaults to "/images/weather/."
 
@@ -55,12 +64,14 @@ E. $mobile - Optional link for mobile forecast on NWS site. The mobile weather l
 
 5. Include Function
 
-Include the nws_weather_parser.php code in the page where you want to display your weather data. See the included sample file for how to handle the includes. Generally, the include should look like:
+Include the function code in the page where you want to display your weather data. See the included sample files for how to handle the includes. Generally, the include should look like:
 
 	// Include the NWS Parser function
 	include 'nws_weather_parser.php';
 
 Just replace 'nws_weather_parser.php' with the path to wherever the file resides on your server. For instance, the path could be '/weather/nws_weather_parser.php'.
+
+For the database version, the include file would be 'nws_db_weather_parser.php'.
 
 
 
@@ -68,14 +79,21 @@ Just replace 'nws_weather_parser.php' with the path to wherever the file resides
 
 You must actually reference the function on the page you wish to display the weather:
 
-	// Call the function
-	$xml = parseWeather($localfeed, $remotefeed);
+A.	// Call the flat file function
+	$xml = parse_weather($localfeed, $remotefeed);
+	
+B.  // Call the database function
+	$xml = db_parse_weather($remotefeed, $db_info)
 
 
 
 7. Display Weather Data
 
-Display the weather data on your page. The NWS provides a PDF Product Description document that describes the XML feed and shows all the data that can be referenced. You can choose whatever pieces of data you want to display on your page. The included sample_output.php file shows you how to reference each item. All of the nodes in the XML file are stored in an array named $xml and can be easily referenced like '$xml->weather'.
+Display the weather data on your page. The NWS provides a PDF Product Description document that describes the XML feed and shows all the data that can be referenced. You can choose whatever pieces of data you want to display on your page. The included sample_output.php and sample_db_output.php files show you how to reference each item. Please note that accessing the variables for display is slightly different depending on whether you're using the flat file or the database version.
+
+A. Flat File version: All of the nodes in the XML file are stored in an array named $xml and can be easily referenced like '$xml->weather'.
+
+B. Database version: All the variables are extracted from the array returned by the SQL query and extracted into variables with a prefix of nws_ (to avoid name collisions) so that they can be easily referenced by name like '$nws_weather'. The variable names will be identical to the table field names with 'nws_' added to the beginning.
 
 Product Description Document
 http://products.weather.gov/PDD/NWS_Current_Observations_RSS_XML.pdf
@@ -92,13 +110,9 @@ A sample CSS file has been included as an example of what can be done to visuall
 
 The weather parser does some basic error checking.
 
-A. It first checks to see if the directory containing the XML file is writable or not. If the directory is writable,
+A. The flat file version first checks to see if the directory containing the XML file is writable or not. If the directory is writable, it then checks for the existence of the XML file itself. If the file exists, the function then checks to see if the file is more than an hour old. If it is, or the file doesn't exist, the function attempts to grab a new copy of the file and write it to the directory. If the directory or the file are not writable, the function will return an error instead of the XML data.
 
-B. It then checks for the existence of the XML file itself. If the file exists,
+B. For the database version, the function first checks to be sure it can connect to the database. If it can, it queries the database for the last entry. If it finds no entry, or the entry is older than one hour, it will attempt to load a new file from the National Weather Service and write it to the database. It will then once again query for the last entry and display it. If it cannot connect to the database; read or write data to the database; or load the XML file from the NWS, the function will return an error instead of the XML data.
 
-C. the function then checks to see if the file is more than an hour old. If it is, or the file doesn't exist,
-
-D. the function attempts to grab a new copy of the file and write it to the directory.
-
-If the directory or the file are not writable, the function will return an error instead of the XML data. The sample_output.php file is set to display a generic error message if an error is detected. IF you are in a test environment, or you run into problems getting the weather parser to work in a live environment, you can choose to display the actual output from the errors. Please use caution when doing this, as it will expose portions of your directory structure which could be used by malicious users to exploit your server.
+The sample_output.php and sample_db_output.php files are set to display a generic error message if an error is detected. If you are in a test environment, or you run into problems getting the weather parser to work in a live environment, you can choose to display the actual output from the errors. Please use caution when doing this, as it can expose portions of your directory or database structure which could be used by malicious users to exploit your server.
 
