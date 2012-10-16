@@ -287,4 +287,11 @@ function load_xml_data()
 	}
 }
 
+// A function to convert weather icon filenames from .png to .jpg
+function replace_filename($filename)
+{
+	$icon = substr_replace($filename, 'jpg', -3, 3);
+	return $icon;
+}
+
 /* end of file nws_db_weather_parser.php */
