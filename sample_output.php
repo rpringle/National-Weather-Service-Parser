@@ -39,7 +39,7 @@
 		echo '<div id="nws-container">' . "\n";
 		echo '<h1>Current Weather</h1>' . "\n";
 		echo '<span class="primary">' . "\n";
-		echo '<img src="' . $icons_path . $xml->icon_url_name . '" alt=" ">'  . "\n";
+		echo '<img src="' . $icons_path . replace_filename($xml->icon_url_name) . '" alt=" ">'  . "\n";
 		// Casting temp_f as a float removes trailing zeros
 		echo '<h2>' . (float)$xml->temp_f . '&#176; F</h2>' . "\n";
 		echo '<p class="nws-description">' . $xml->weather . '</p>' . "\n";
