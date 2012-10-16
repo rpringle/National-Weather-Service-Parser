@@ -46,94 +46,107 @@ $db_info = array(
     "hostname" => "localhost",	// Your DB hostname or IP address
     "username" => "username",	// Database username
     "password" => "password",	// Database password
-    "database" => "nws"			// Database name, defaults to "nws". If you change here, be sure to change in query as well.
+    "database" => "nws",		// Database name
+	"table"    => "test_nws"    // Table name
 );
 
 /**
- * db_parse_weather function
+ * nws_db_weather_parser
  *
  * @category	XML Weather Widget
  * @author		Ron Pringle
  * @link		https://github.com/rpringle/National-Weather-Service-Parser
  */
- 
-function db_parse_weather($remote_feed, $db_info)
+
+// Open connection to database 
+function open_db_connection()
 {
-	// Open connection to database	
+	global $db_info;
+	
+	// Connect to the DB with the supplied credentials	
 	$link = mysql_connect($db_info['hostname'],$db_info['username'],$db_info['password']);
-	mysql_select_db($db_info['database']) or die("Unable to select database");
-	
-	// Retrieve difference in minutes between now and last record entered
-	$qry = "SELECT TIMESTAMPDIFF(MINUTE, timestamp, NOW()) AS diff FROM nws ORDER BY nws_id DESC LIMIT 1";
-	$result = mysql_query($qry);
-	
-	if (!$result)
+	if (!$link)
 	{
-    	$error = 'Could not run query: ' . mysql_error();
+		$error = "Unable to connect to database.";
+	}
+	// Select the database
+	$db_select = mysql_select_db($db_info['database']);
+	if (!$db_select)
+	{
+		$error = "Unable to select database";
+	}
+	if (isset($error))
+	{
+		return array("error" => $error);
+	}
+}
+
+
+function db_parse_weather()
+{
+	global $remote_feed;
+	global $db_info;
+	
+	// Open datbase connection
+	open_db_connection($db_info);
+	
+	if (isset($link['error']))
+	{
+		$error = $link['error'];
+		return array("error" => $error);
+		break;
 	}
 	else
 	{
-		$row = mysql_fetch_row($result);
+		// Make sure table exists. If it doesn't, create it
+		create_table();
 		
-		$diff = $row[0];
+		$table = $db_info['table'];
 		
-		// If greater than 1 hr (60 minutes) write new data to database
-		if ($diff >= 60)
-		{
-			// Load XML data from National Weather Service
-			$weather_url	= 'http://www.nws.noaa.gov/data/current_obs/' . $remote_feed;
-			$weather_data	= file_get_contents($weather_url);
-			
-			// Check to see if the file loaded
-			if ($weather_data === FALSE)
-			{
-				$error = "Sorry, the XML weather file failed to load.";
-			}
-			else
-			{			
-				// Load the XML weather data into a variable
-				$xml = simplexml_load_string($weather_data);
-				
-				// Insert data into database
-				$qry = "INSERT INTO nws (nws_id, location, station_id, latitude, longitude,
-						observation_time, observation_time_rfc822, weather, temperature_string,
-						temp_f, temp_c, relative_humidity, wind_string, wind_dir, wind_degrees,
-						wind_mph, wind_gust_mph, wind_kt, wind_gust_kt, pressure_in, dewpoint_string,
-						dewpoint_f, dewpoint_c, visibility_mi, icon_url_name, timestamp) 
-	    				VALUES ('', '$xml->location', '$xml->station_id', '$xml->latitude', '$xml->longitude',
-	    				'$xml->observation_time', '$xml->observation_time_rfc822', '$xml->weather',
-	    				'$xml->temperature_string', '$xml->temp_f', '$xml->temp_c', '$xml->relative_humidity',
-	    				'$xml->wind_string', '$xml->wind_dir', '$xml->wind_degrees', '$xml->wind_mph',
-	    				'$xml->wind_gust_mph', '$xml->wind_kt', '$xml->wind_gust_kt', '$xml->pressure_in',
-						'$xml->dewpoint_string', '$xml->dewpoint_f', '$xml->dewpoint_c', '$xml->visibility_mi',
-						'$xml->icon_url_name', NOW())";
-						
-				mysql_query($qry);			
-	    	}
-		}
-		
-		// Load the last entry from the database
-		// I highly recommend you replace the * with the specific values you wish to load.
-		// In most cases, you're not going to use all the values passed from the NWS.
-		$qry = "SELECT * FROM nws ORDER BY nws_id DESC LIMIT 1";
+		// Retrieve difference in minutes between now and last record entered
+		$qry = "SELECT TIMESTAMPDIFF(MINUTE, timestamp, NOW()) AS diff FROM $table ORDER BY nws_id DESC LIMIT 1";
 		$result = mysql_query($qry);
 		
-		// Check to see if query executed properly
 		if (!$result)
 		{
-			$error = "Could not successfully run query ($qry) from DB: " . mysql_error();
-		}
-		// Check to see if any results were returned
-		else if (mysql_num_rows($result) == 0)
-		{
-			$error = "Sorry, no rows were found.";
+	    	$error = 'Could not run query: ' . mysql_error();
 		}
 		else
 		{
-			// Return the results as an associative array so that we can reference them by
-			// name in the sample_output.php page.
-			$xml = mysql_fetch_assoc($result);
-		}	
+			$row = mysql_fetch_row($result);
+			
+			$diff = $row[0];
+			
+			// If greater than 1 hr (60 minutes) write new data to database
+			if ($diff >= 60)
+			{
+				// Load new XML data from National Weather Service
+				load_xml_data();
+			}
+			
+			// Load the last entry from the database
+			// I recommend you replace the * with the specific values you wish to load.
+			// In most cases, you're not going to use all the values passed from the NWS.
+			$qry = "SELECT * FROM $table ORDER BY nws_id DESC LIMIT 1";
+			$result = mysql_query($qry);
+			
+			// Check to see if query executed properly
+			if (!$result)
+			{
+				$error = "Could not successfully run query ($qry) from DB: " . mysql_error();
+			}
+			// Check to see if any results were returned
+			else if (mysql_num_rows($result) == 0)
+			{
+				$error = "Sorry, no rows were found.";
+			}
+			else
+			{
+				// Return the results as an associative array so that we can reference them by
+				// name in the sample_output.php page.
+				$xml = mysql_fetch_assoc($result);
+			}	
+		}
 	}
 
 	// If there were no errors, load data
@@ -145,6 +158,132 @@ function db_parse_weather($remote_feed, $db_info)
 	{
 		// Return errors
 		return array("error" => $error);
+	}
+}
+
+// Create new table function
+// Called from within db_parse_weather
+function create_table()
+{
+	global $remote_feed;
+	global $db_info;
+	
+	// Open datbase connection
+	open_db_connection();
+	
+	// Assign table name to variable
+	$table = $db_info['table'];
+	
+	// Check to see if table already exists
+	$qry = "SHOW TABLES LIKE '$table'";
+	$check_table = mysql_query($qry);
+	$table_exists = mysql_num_rows($check_table) > 0 ? 'true' : 'false';
+	
+	// Create the table if it doesn't already exist
+	if ($table_exists == 'false')
+	{
+		// Prepare the query
+		$qry = "CREATE TABLE $table (
+		  nws_id int(11) NOT NULL auto_increment,
+		  location varchar(255) default NULL,
+		  station_id varchar(4) default NULL,
+		  latitude double(10,6) default NULL,
+		  longitude double(10,6) default NULL,
+		  elevation varchar(45) default NULL,
+		  observation_time varchar(255) default NULL,
+		  observation_time_rfc822 varchar(255) default NULL,
+		  weather varchar(255) default NULL,
+		  temperature_string varchar(25) default NULL,
+		  temp_f decimal(4,1) default NULL,
+		  temp_c decimal(4,1) default NULL,
+		  relative_humidity tinyint(4) default NULL,
+		  wind_string varchar(45) default NULL,
+		  wind_dir varchar(45) default NULL,
+		  wind_degrees int(3) default NULL,
+		  wind_mph decimal(4,1) default NULL,
+		  wind_gust_mph decimal(4,1) default NULL,
+		  wind_kt int(3) default NULL,
+		  wind_gust_kt int(3) default NULL,
+		  pressure_in decimal(5,2) default NULL,
+		  dewpoint_string varchar(45) default NULL,
+		  dewpoint_f decimal(3,1) default NULL,
+		  dewpoint_c decimal(3,1) default NULL,
+		  heat_index_string varchar(45) default NULL,
+		  heat_index_f decimal(3,1) default NULL,
+		  heat_index_c decimal(3,1) default NULL,
+		  windchill_string varchar(45) default NULL,
+		  windchill_f decimal(3,1) default NULL,
+		  windchill_c decimal(3,1) default NULL,
+		  visibility_mi decimal(5,2) default NULL,
+		  icon_url_name varchar(255) default NULL,
+		  timestamp timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+		  PRIMARY KEY  (nws_id)
+		) ENGINE=MyISAM AUTO_INCREMENT=8 DEFAULT CHARSET=utf8";
+	
+		// Execute the query
+		$result = mysql_query($qry);
+		
+		// Check for errors
+		if (!$result)
+		{
+			// If the query didn't run, return an error
+	    	$error = 'Could not run query: ' . mysql_error();
+	    	// Return errors
+			return array("error" => $error);
+		}
+		else
+		{
+			// Load data for the first time
+			load_xml_data();
+		}
+	}
+}
+
+
+// Load XML data function
+function load_xml_data()
+{
+	global $remote_feed;
+	global $db_info;
+	
+	// Open datbase connection
+	open_db_connection();
+	
+	// Assign table name to variable
+	$table = $db_info['table'];
+	
+	// Load XML data from National Weather Service
+	$weather_url	= 'http://www.nws.noaa.gov/data/current_obs/' . $remote_feed;
+	$weather_data	= file_get_contents($weather_url);
+	
+	// Check to see if the file loaded
+	if ($weather_data === FALSE)
+	{
+		$error = "Sorry, the XML weather file failed to load.";
+	}
+	else
+	{			
+	// Load the XML weather data into a variable
+	$xml = simplexml_load_string($weather_data);
+	
+	// Insert data into database
+	$qry = "INSERT INTO $table (nws_id, location, station_id, latitude, longitude,
+			elevation, observation_time, observation_time_rfc822, weather, temperature_string,
+			temp_f, temp_c, relative_humidity, wind_string, wind_dir, wind_degrees,
+			wind_mph, wind_gust_mph, wind_kt, wind_gust_kt, pressure_in, dewpoint_string,
+			dewpoint_f, dewpoint_c, heat_index_string, heat_index_f, heat_index_c,
+			windchill_string, windchill_f, windchill_c, visibility_mi, icon_url_name, timestamp) 
+			VALUES ('', '$xml->location', '$xml->station_id', '$xml->latitude', '$xml->longitude',
+			'$xml->elevation', '$xml->observation_time', '$xml->observation_time_rfc822', '$xml->weather',
+			'$xml->temperature_string', '$xml->temp_f', '$xml->temp_c', '$xml->relative_humidity',
+			'$xml->wind_string', '$xml->wind_dir', '$xml->wind_degrees', '$xml->wind_mph',
+			'$xml->wind_gust_mph', '$xml->wind_kt', '$xml->wind_gust_kt', '$xml->pressure_in',
+			'$xml->dewpoint_string', '$xml->dewpoint_f', '$xml->dewpoint_c',
+			'$xml->heat_index_string', '$xml->heat_index_f', '$xml->heat_index_c',
+			'$xml->windchill_string', '$xml->windchill_f', '$xml->windchill_c', '$xml->visibility_mi',
+			'$xml->icon_url_name', NOW())";
+					
+			mysql_query($qry);			
 	}
 }
 

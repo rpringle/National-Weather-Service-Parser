@@ -1,8 +1,11 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
 	// Include the NWS DB Parser function
 	include 'nws_db_weather_parser.php';
-	
+		
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -52,19 +55,19 @@
 		// Some things are seasonal, only show them if they exist
 		
 		// If there's a windchill, display it
-		if ($nws_windchill_f)
+		if ($nws_windchill_f && $nws_windchill_f != '0.0')
 		{
 			echo '<li><strong>Wind Chill: </strong>' . $nws_windchill_f . '&#176; F</li>' . "\n";
 		}
 		// If there's a heat index, display it
-		if ($nws_heat_index_f)
+		if ($nws_heat_index_f && $nws_heat_index_f != '0.0')
 		{
 			echo '<li><strong>Heat Index: </strong>' . $nws_heat_index_f . '&#176; F</li>' . "\n";
 		}
 		echo '<li><strong>Humidity: </strong>' . $nws_relative_humidity . '%</li>' . "\n";
 		echo '<li><strong>Wind: </strong>' . $nws_wind_string . '</li>' . "\n";
-		echo '<li><strong>Pressure: </strong>' . (float)$nws_pressure_in . '</li>' . "\n";
-		echo '<li><strong>Dewpoint: </strong>' . (float)$nws_dewpoint_f . '</li>' . "\n";
+		echo '<li><strong>Pressure: </strong>' . (float)$nws_pressure_in . ' In.</li>' . "\n";
+		echo '<li><strong>Dewpoint: </strong>' . (float)$nws_dewpoint_f . '&#176; F</li>' . "\n";
 		echo '</ul>' . "\n";
 		echo '<p class="nws-centered nws-observation-time"><em>' . $nws_observation_time . '</em></p>' . "\n";
 		// If there's a link to the full forecast, display it
