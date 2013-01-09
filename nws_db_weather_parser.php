@@ -232,7 +232,6 @@ function create_table()
 	}
 }
 
-
 // Load XML data function
 function load_xml_data()
 {
