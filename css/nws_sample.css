@@ -1,0 +1,50 @@
+@charset "utf-8";
+/* CSS Document */
+
+#nws-container {
+	background-color: #faf9e7;
+	border: 1px solid #96968d;
+	padding: .5em;
+	border-radius: 10px;
+	box-shadow: 5px 5px 3px #888;
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: .85em;
+	width:18em;
+}
+#nws-container img {
+	border: 1px solid #96968d;
+	border-radius: 10px;
+	box-shadow: 2px 2px 3px #888;
+	margin: 5px 5px 5px 10px;
+	float: left;
+}
+#nws-container h1 {
+	font-size: 1.8em;
+	font-style: bold;
+	text-align: center;
+}
+#nws-container h2 {
+	font-size: 1.5em;
+	font-style: bold;
+	padding-top: .5em;
+	margin-bottom:.5em;
+}
+#nws-container ul {
+	list-style: none;
+	margin-left:-2.5em;
+}
+#nws-container span.primary {
+	margin: 0, auto;
+	text-align: center;
+}
+.nws-centered {
+	text-align:center;
+}
+.nws-description {
+	font-weight: bold;
+	padding-bottom: 1em;
+	margin-top: .5em;
+}
+.nws-observation-time {
+	font-size:smaller;
+}
