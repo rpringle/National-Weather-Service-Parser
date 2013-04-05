@@ -53,7 +53,6 @@ function parse_weather($local_feed, $remote_feed)
 
 	$filename		= $local_feed;
 	$weather_url	= 'http://www.nws.noaa.gov/data/current_obs/' . $remote_feed;
-	$weather_data	= file_get_contents($weather_url);
 
 	$xml = false;
 	
@@ -68,22 +67,46 @@ function parse_weather($local_feed, $remote_feed)
 			// If greater than 1 hr (3600 seconds) get new file from source
 			if ($diff >= 3600)
 			{
-				// Check to make sure file has write permissions
-				if (is_writable($filename))
+				// Suppress errors on failure using @ before calls 
+				// Get weather data
+				$weather_data	= @file_get_contents($weather_url);
+				
+				// Make sure we actually got something
+				if ($weather_data === TRUE)
 				{
-					file_put_contents($filename,$weather_data, LOCK_EX);
+					// Check to make sure file has write permissions
+					if (is_writable($filename))
+					{
+						@file_put_contents($filename,$weather_data, LOCK_EX);
+					}
+					else
+					{
+						// Log error if file isn't writable
+						$error = "Sorry, can't write to file. Please check file permissions.";
+					}
 				}
 				else
 				{
-					// Log error if file isn't writable
-					$error = "Sorry, can't write to file. Please check file permissions.";
+					// Log error if file couldn't be read
+					$error = "Sorry, unable to read weather data. Please check URL.";
 				}
 			}
 		}
 		else
 		{
 			// File doesn't exist, get data and create new file
-			file_put_contents($filename, $weather_data);
+			$weather_data = @file_get_contents($weather_url);
+			
+			// Make sure we actually got something
+			if ($weather_data === TRUE)
+			{
+				@file_put_contents($filename, $weather_data);
+			}
+			else
+			{
+				// Log error if file couldn't be read
+				$error = "Sorry, unable to read weather data. Please check URL.";
+			}
 		}
 	}
 	else
@@ -96,8 +119,17 @@ function parse_weather($local_feed, $remote_feed)
 	if (!isset($error))
 	{
 		// Load the XML weather data into a variable and return the data
-		$xml = simplexml_load_file($filename);
-		return $xml;
+		$xml = @simplexml_load_file($filename);
+		
+		if ($weather_xml === TRUE)
+		{
+			return $xml;
+		}
+		else
+		{
+			$error = "XML file is empty!";
+			return $error;
+		}
 	}
 	else
 	{

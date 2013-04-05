@@ -114,7 +114,21 @@ function db_parse_weather()
 			if ($diff >= 60)
 			{
 				// Load new XML data from National Weather Service
-				load_xml_data();
+				$xml_data = load_xml_data();
+				
+				// If errors, assign them to the error var
+				if ($xml_data['success'] == FALSE)
+				{
+					if (isset($xml_data['error']))
+					{
+						// You can probably suppress this error in most cases. Unless
+						// this is the first time running the weather parser, there 
+						// will be data in the database to pull from and display. I've
+						// defaulted to not displaying this error. Uncomment if your
+						// weather data is not refreshing.
+						// $error = $xml_data['error'];
+					}
+				}
 			}
 			
 			// Load the last entry from the database
@@ -246,37 +260,50 @@ function load_xml_data()
 	
 	// Load XML data from National Weather Service
 	$weather_url	= 'http://www.nws.noaa.gov/data/current_obs/' . $remote_feed;
-	$weather_data	= file_get_contents($weather_url);
+	$weather_data	= @file_get_contents($weather_url);
 	
 	// Check to see if the file loaded
 	if ($weather_data === FALSE)
 	{
-		$error = "Sorry, the XML weather file failed to load.";
+		$load_xml_data['success'] = FALSE;
+		$load_xml_data['error'] = "Sorry, the XML weather file failed to load.";
 	}
 	else
 	{			
-	// Load the XML weather data into a variable
-	$xml = simplexml_load_string($weather_data);
-	
-	// Insert data into database
-	$qry = "INSERT INTO $table (nws_id, location, station_id, latitude, longitude,
-			elevation, observation_time, observation_time_rfc822, weather, temperature_string,
-			temp_f, temp_c, relative_humidity, wind_string, wind_dir, wind_degrees,
-			wind_mph, wind_gust_mph, wind_kt, wind_gust_kt, pressure_in, dewpoint_string,
-			dewpoint_f, dewpoint_c, heat_index_string, heat_index_f, heat_index_c,
-			windchill_string, windchill_f, windchill_c, visibility_mi, icon_url_name, timestamp) 
-			VALUES ('', '$xml->location', '$xml->station_id', '$xml->latitude', '$xml->longitude',
-			'$xml->elevation', '$xml->observation_time', '$xml->observation_time_rfc822', '$xml->weather',
-			'$xml->temperature_string', '$xml->temp_f', '$xml->temp_c', '$xml->relative_humidity',
-			'$xml->wind_string', '$xml->wind_dir', '$xml->wind_degrees', '$xml->wind_mph',
-			'$xml->wind_gust_mph', '$xml->wind_kt', '$xml->wind_gust_kt', '$xml->pressure_in',
-			'$xml->dewpoint_string', '$xml->dewpoint_f', '$xml->dewpoint_c',
-			'$xml->heat_index_string', '$xml->heat_index_f', '$xml->heat_index_c',
-			'$xml->windchill_string', '$xml->windchill_f', '$xml->windchill_c', '$xml->visibility_mi',
-			'$xml->icon_url_name', NOW())";
-					
-			mysql_query($qry);			
+		// Load the XML weather data into a variable
+		$xml = @simplexml_load_string($weather_data);
+		
+		// Check to be sure XML has data
+		if ($weather_xml === TRUE)
+		{
+			// Insert data into database
+			$qry = "INSERT INTO $table (nws_id, location, station_id, latitude, longitude,
+					elevation, observation_time, observation_time_rfc822, weather, temperature_string,
+					temp_f, temp_c, relative_humidity, wind_string, wind_dir, wind_degrees,
+					wind_mph, wind_gust_mph, wind_kt, wind_gust_kt, pressure_in, dewpoint_string,
+					dewpoint_f, dewpoint_c, heat_index_string, heat_index_f, heat_index_c,
+					windchill_string, windchill_f, windchill_c, visibility_mi, icon_url_name, timestamp) 
+					VALUES ('', '$xml->location', '$xml->station_id', '$xml->latitude', '$xml->longitude',
+					'$xml->elevation', '$xml->observation_time', '$xml->observation_time_rfc822', '$xml->weather',
+					'$xml->temperature_string', '$xml->temp_f', '$xml->temp_c', '$xml->relative_humidity',
+					'$xml->wind_string', '$xml->wind_dir', '$xml->wind_degrees', '$xml->wind_mph',
+					'$xml->wind_gust_mph', '$xml->wind_kt', '$xml->wind_gust_kt', '$xml->pressure_in',
+					'$xml->dewpoint_string', '$xml->dewpoint_f', '$xml->dewpoint_c',
+					'$xml->heat_index_string', '$xml->heat_index_f', '$xml->heat_index_c',
+					'$xml->windchill_string', '$xml->windchill_f', '$xml->windchill_c', '$xml->visibility_mi',
+					'$xml->icon_url_name', NOW())";
+						
+			mysql_query($qry);
+			
+			$load_xml_data['success'] = TRUE;
+		}
+		else
+		{
+			$load_xml_data['success'] = FALSE;
+			$load_xml_data['error'] = "XML file is empty!";
+		}		
 	}
+	return $load_xml_data;
 }
 
 // A function to convert weather icon filenames from .png to .jpg
