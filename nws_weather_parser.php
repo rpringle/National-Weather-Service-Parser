@@ -72,7 +72,7 @@ function parse_weather($local_feed, $remote_feed)
 				$weather_data	= @file_get_contents($weather_url);
 				
 				// Make sure we actually got something
-				if ($weather_data === TRUE)
+				if ($weather_data !== FALSE)
 				{
 					// Check to make sure file has write permissions
 					if (is_writable($filename))
@@ -98,7 +98,7 @@ function parse_weather($local_feed, $remote_feed)
 			$weather_data = @file_get_contents($weather_url);
 			
 			// Make sure we actually got something
-			if ($weather_data === TRUE)
+			if ($weather_data !== FALSE)
 			{
 				@file_put_contents($filename, $weather_data);
 			}
@@ -121,7 +121,7 @@ function parse_weather($local_feed, $remote_feed)
 		// Load the XML weather data into a variable and return the data
 		$xml = @simplexml_load_file($filename);
 		
-		if ($weather_xml === TRUE)
+		if ($weather_xml !== FALSE)
 		{
 			return $xml;
 		}

@@ -274,7 +274,7 @@ function load_xml_data()
 		$xml = @simplexml_load_string($weather_data);
 		
 		// Check to be sure XML has data
-		if ($weather_xml === TRUE)
+		if ($weather_xml !== FALSE)
 		{
 			// Insert data into database
 			$qry = "INSERT INTO $table (nws_id, location, station_id, latitude, longitude,
